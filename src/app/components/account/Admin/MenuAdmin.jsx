@@ -111,7 +111,8 @@ const MenuAdmin = () => {
       </h3>
       <ul>
         <li><Link to={URL.URL_PRODUCTSLIST}>Liste des produits</Link></li>
-        <li> <Link to={URL.URL_PRODUCTSTYPE}>Type de produit</Link></li>
+        <li> <Link to={URL.URL_PRODUCTSCATEGORIE}>Catégories de produits</Link></li>
+        <li> <Link to={URL.URL_PRODUCTSTYPE}>Types de produits</Link></li>
        
       </ul>
       <h3 className="text-size16 flex items-center gap-3">

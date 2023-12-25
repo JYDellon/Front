@@ -148,7 +148,8 @@ const UserList = () => {
         </h3>
         <ul>
           <li>Liste des produits</li>
-          <li>Type de produit</li>
+          <li>Catégories de produits</li>
+          <li>Types de produits</li>
         </ul>
         <h3 className="text-size16 flex items-center gap-3">
           <svg

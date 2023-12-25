@@ -7,8 +7,8 @@ import TypeDeleteButton from "./TypeDeleteButton";
 import TypeUpdateButton from "./TypeUpdateButton";
 import Modal from "react-modal";
 
-const ProductsType = () => {
-
+  const ProductsType = () => {
+  const [parentTypes, setParentTypes] = useState([]);
   const token = useSelector(selectToken);
   const [products, setProducts] = useState([]);
   const [types, setTypes] = useState([]);
@@ -19,8 +19,9 @@ const ProductsType = () => {
     idType: "",
     typeName: "",
   });
-const [newTypeData, setNewTypeData] = useState({
-  typeName: "",
+  const [newTypeData, setNewTypeData] = useState({
+    typeName: "",
+    parent_id: null,
 });
 
   const [selectedProducts, setSelectedProducts] = useState([]);
@@ -29,15 +30,6 @@ const [newTypeData, setNewTypeData] = useState({
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const productsResponse = await axios.get(
-          "https://localhost:8000/api/types",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
-
         const typesResponse = await axios.get(
           "https://localhost:8000/api/types",
           {
@@ -47,14 +39,24 @@ const [newTypeData, setNewTypeData] = useState({
           }
         );
 
-        setProducts(productsResponse.data);
         setTypes(typesResponse.data);
+
+        // Filtrer les types avec parent_id null
+        const parentTypes = typesResponse.data.filter((type) => type.parent_id === null);
+        setParentTypes(parentTypes);
       } catch (error) {
+        // Gérer les erreurs
       }
     };
 
     fetchData();
   }, [token, isAddModalOpen]);
+
+
+
+  
+  
+
 
 
 
@@ -122,6 +124,28 @@ const handleTypeAdded = () => {
     }));
   };
 
+  // const handleAddType = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       "https://localhost:8000/api/types",
+  //       JSON.stringify(newTypeData),
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  
+  //     setTypes((prevTypes) => [...prevTypes, response.data]);
+  //     setMessage("Nouveau type créé avec succès.");
+  //   } catch (error) {
+  //   } finally {
+  //     setIsAddModalOpen(false); // Fermer la modal
+  //   }
+  // };
+
+
   const handleAddType = async () => {
     try {
       const response = await axios.post(
@@ -142,6 +166,7 @@ const handleTypeAdded = () => {
       setIsAddModalOpen(false); // Fermer la modal
     }
   };
+  
 
 const handleTypesReload = (reloadedTypes) => {
   setTypes(reloadedTypes);
@@ -262,7 +287,11 @@ const handleTypesReload = (reloadedTypes) => {
                 type="checkbox"
                 onChange={(e) => {
                   if (e.target.checked) {
-                    setSelectedProducts(products.map((type) => type.idType));
+                    setSelectedProducts(
+                      types
+                        .filter((type) => type.parent_id !== null)
+                        .map((type) => type.idType)
+                    );
                   } else {
                     setSelectedProducts([]);
                   }
@@ -271,40 +300,56 @@ const handleTypesReload = (reloadedTypes) => {
             </th>
             <th className="min-w-1/12 p-2 text-left">ID</th>
             <th className="min-w-1/3 p-2 text-left">Nom</th>
+            <th className="min-w-1/3 p-2 text-left">Catégorie</th>
             <th className="min-w-1/2 p-2 text-left">Actions</th>
           </tr>
         </thead>
         <tbody>
-          {types.map((type) => (
-            <tr key={type.idType}>
-              <td className="p-2">
-                <input
-                  type="checkbox"
-                  onChange={() => handleCheckboxChange(type.idType)}
-                  checked={selectedProducts.includes(type.idType)}
-                />
-              </td>
-              <td className="p-2">{type.idType}</td>
-              <td className="p-2">{type.Nom}</td>
+  {types
+    .filter((type) => type.parent_id !== null)
+    .map((type) => (
+      <tr key={type.idType}>
+        <td className="p-2">
+          <input
+            type="checkbox"
+            onChange={() => handleCheckboxChange(type.idType)}
+            checked={selectedProducts.includes(type.idType)}
+          />
+        </td>
+        <td className="p-2">{type.idType}</td>
+        <td className="p-2">{type.Nom}</td>
+        {/* Ajoutez la colonne pour afficher le nom de la catégorie parente */}
+        <td className="p-2">
+  {type.parent_id ? (
+    (() => {
+      const parentType = types.find((t) => t.idType === type.parent_id);
 
-              <td className="align-middle text-center p-2">
-                <div className="flex items-center space-x-2">
-                <TypeUpdateButton
-        productId={type.idType}
-        onTypeUpdated={handleTypeUpdated}
-        refreshTypes={refreshTypes} 
-      />
-                  
-                  <TypeDeleteButton
-                    key3={type.idType}
-                    productId={type.idType}
-                    onTypeDeleted={handleTypeDeleted}
-                  />
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
+      return parentType ? `${parentType.Nom}` : 'Type introuvable';
+    })()
+  ) : (
+    'Aucune catégorie parente'
+  )}
+</td>
+
+
+
+        <td className="align-middle text-center p-2">
+          <div className="flex items-center space-x-2">
+            <TypeUpdateButton
+              productId={type.idType}
+              onTypeUpdated={handleTypeUpdated}
+              refreshTypes={refreshTypes}
+            />
+            <TypeDeleteButton
+              key3={type.idType}
+              productId={type.idType}
+              onTypeDeleted={handleTypeDeleted}
+            />
+          </div>
+        </td>
+      </tr>
+    ))}
+</tbody>
       </table>
 
       <Modal
@@ -350,6 +395,27 @@ const handleTypesReload = (reloadedTypes) => {
 />
 </div>
 
+
+
+
+
+{/* Ajoutez le menu déroulant pour les types parent_id null */}
+<div style={{ marginBottom: "20px" }}>
+          <label>Nom de la catégorie</label>
+          <select
+                    name="parent_id"
+                    style={{ width: "100%" }}
+                    onChange={(e) => setNewTypeData((prevData) => ({ ...prevData, parent_id: e.target.value }))}
+                >
+                    <option value={null}>Choisissez une catégorie</option>
+                    {parentTypes.map((parentType) => (
+                        <option key={parentType.idType} value={parentType.idType}>
+                            {parentType.Nom}
+                        </option>
+                    ))}
+                </select>
+
+        </div>
            
 
             {/* Ajoutez d'autres champs au besoin dans la colonne gauche */}
