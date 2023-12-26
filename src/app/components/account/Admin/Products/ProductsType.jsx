@@ -53,31 +53,40 @@ import Modal from "react-modal";
   }, [token, isAddModalOpen]);
 
 
-
+  // const handleTypeDeleted = async ({ productId }) => {
+  //   try {
+  //     await axios.delete(`https://localhost:8000/api/types/${productId}`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`, 
+  //       },
+  //     });
   
+  //     // Mettez à jour l'état local pour refléter la suppression du type
+  //     setTypes((prevTypes) => prevTypes.filter((type) => type.idType !== productId));
+  //     setMessage(`Type ${productId} supprimé avec succès.`);
+  //   } catch (error) {
+  //   }finally {
+  //     handleReloadTypes(); // Recharger la liste des types
+  //   }
+  // };
   
-
-
-
-
   const handleTypeDeleted = async ({ productId }) => {
     try {
       await axios.delete(`https://localhost:8000/api/types/${productId}`, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       });
-  
-      // Mettez à jour l'état local pour refléter la suppression du type
+
       setTypes((prevTypes) => prevTypes.filter((type) => type.idType !== productId));
-      setMessage(`Type ${productId} supprimé avec succès.`);
+      setMessage(`Le type ${productId} a été supprimé avec succès.`);
     } catch (error) {
-    }finally {
-      handleReloadTypes(); // Recharger la liste des types
+      console.error("Erreur lors de la suppression du type :", error);
+      setMessage("Erreur lors de la suppression du type.");
+    } finally {
+      handleReloadTypes();
     }
   };
-  
-
 
   const handleTypeUpdated = async ({ productId, updatedProductData }) => {
     try {
@@ -146,27 +155,58 @@ const handleTypeAdded = () => {
   // };
 
 
+  // const handleAddType = async () => {
+  //   try {
+  //     const response = await axios.post(
+  //       "https://localhost:8000/api/types",
+  //       JSON.stringify(newTypeData),
+  //       {
+  //         headers: {
+  //           'Content-Type': 'application/json',
+  //           Authorization: `Bearer ${token}`,
+  //         },
+  //       }
+  //     );
+  
+  //     setTypes((prevTypes) => [...prevTypes, response.data]);
+  //     setMessage("Nouveau type créé avec succès.");
+  //   } catch (error) {
+  //   } finally {
+  //     setIsAddModalOpen(false); // Fermer la modal
+  //   }
+  // };
+  
+
   const handleAddType = async () => {
     try {
+      if (!newTypeData.parent_id) {
+        // Vérifiez si une catégorie a été choisie
+        console.error("Veuillez choisir une catégorie.");
+        setMessage("Veuillez choisir une catégorie.");
+        return;
+      }
+
       const response = await axios.post(
         "https://localhost:8000/api/types",
         JSON.stringify(newTypeData),
         {
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
         }
       );
-  
+
       setTypes((prevTypes) => [...prevTypes, response.data]);
-      setMessage("Nouveau type créé avec succès.");
+      setMessage("Le nouveau type a été créé avec succès.");
     } catch (error) {
+      console.error("Erreur lors de la création du type :", error);
+      setMessage("Erreur lors de la création du type.");
     } finally {
-      setIsAddModalOpen(false); // Fermer la modal
+      setIsAddModalOpen(false);
     }
   };
-  
+
 
 const handleTypesReload = (reloadedTypes) => {
   setTypes(reloadedTypes);
@@ -298,7 +338,6 @@ const handleTypesReload = (reloadedTypes) => {
                 }}
               />
             </th>
-            <th className="min-w-1/12 p-2 text-left">ID</th>
             <th className="min-w-1/3 p-2 text-left">Nom</th>
             <th className="min-w-1/3 p-2 text-left">Catégorie</th>
             <th className="min-w-1/2 p-2 text-left">Actions</th>
@@ -316,7 +355,6 @@ const handleTypesReload = (reloadedTypes) => {
             checked={selectedProducts.includes(type.idType)}
           />
         </td>
-        <td className="p-2">{type.idType}</td>
         <td className="p-2">{type.Nom}</td>
         {/* Ajoutez la colonne pour afficher le nom de la catégorie parente */}
         <td className="p-2">

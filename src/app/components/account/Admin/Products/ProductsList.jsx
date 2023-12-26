@@ -33,6 +33,7 @@ import Modal from "react-modal";
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [selectedProducts, setSelectedProducts] = useState([]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -44,7 +45,7 @@ import Modal from "react-modal";
             },
           }
         );
-
+  
         const typesResponse = await axios.get(
           "https://localhost:8000/api/types",
           {
@@ -53,9 +54,12 @@ import Modal from "react-modal";
             },
           }
         );
-
+  
+        // Filtrer les types où parent_id n'est pas null
+        const typesFiltres = typesResponse.data.filter(type => type.parent_id !== null);
+  
         setProducts(productsResponse.data);
-        setTypes(typesResponse.data);
+        setTypes(typesFiltres);
       } catch (error) {
         console.error(
           "Erreur lors de la récupération des données produit :",
@@ -63,9 +67,10 @@ import Modal from "react-modal";
         );
       }
     };
-
+  
     fetchData();
   }, [token, isAddModalOpen]);
+
 
   const handleProductDeleted = ({ productId }) => {
     setProducts((prevProducts) =>
@@ -91,7 +96,6 @@ import Modal from "react-modal";
 
       setMessage("Le produit a été mis à jour avec succès.");
     } catch (error) {
-      setMessage("Erreur lors de la mise à jour du produit.");
     } finally {
       const updatedData = await axios.get(
         "https://localhost:8000/api/admin/products",
@@ -519,7 +523,7 @@ import Modal from "react-modal";
               >
                 {types.map((type) => (
                   <option key={type.idType} value={type.idType}>
-                    {`${type.idType} - ${type.Nom}`}
+                    {`${type.Nom}`}
                   </option>
                 ))}
               </select>

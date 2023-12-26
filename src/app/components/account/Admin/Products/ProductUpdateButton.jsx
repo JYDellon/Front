@@ -16,6 +16,43 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
   const [selectedProductType, setSelectedProductType] = useState('');
 
 
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     try {
+  //       const typesResponse = await axios.get(
+  //         "https://localhost:8000/api/types",
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //           timeout: 10000,
+  //         }
+  //       );
+  //       setAllTypes(typesResponse.data);
+    
+  //       const productResponse = await axios.get(
+  //         `https://localhost:8000/api/admin/products/${productId}`,
+  //         {
+  //           headers: {
+  //             Authorization: `Bearer ${token}`,
+  //           },
+  //           timeout: 10000,
+  //         }
+  //       );
+  //       setUpdatedProductData(productResponse.data);
+  
+  //       // Définir la valeur actuelle du type de produit dans l'état
+  //       // const currentProductType = `${productResponse.data.product_type_id} - ${productResponse.data.product_type_name}`;
+  //       setSelectedProductType(currentProductType);
+  //     } catch (error) {
+  //       console.error("Erreur lors de la récupération des données", error);
+  //     }
+  //   };
+  
+  //   fetchData();
+  // }, [productId, token]);
+
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -28,8 +65,12 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
             timeout: 10000,
           }
         );
-        setAllTypes(typesResponse.data);
-    
+  
+        // Filtrer les types où parent_id n'est pas null
+        const filteredTypes = typesResponse.data.filter(type => type.parent_id !== null);
+  
+        setAllTypes(filteredTypes);
+  
         const productResponse = await axios.get(
           `https://localhost:8000/api/admin/products/${productId}`,
           {
@@ -42,7 +83,7 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
         setUpdatedProductData(productResponse.data);
   
         // Définir la valeur actuelle du type de produit dans l'état
-        // const currentProductType = `${productResponse.data.product_type_id} - ${productResponse.data.product_type_name}`;
+        const currentProductType = `${productResponse.data.product_type_id} - ${productResponse.data.product_type_name}`;
         setSelectedProductType(currentProductType);
       } catch (error) {
         console.error("Erreur lors de la récupération des données", error);
@@ -329,7 +370,7 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
             >
               {allTypes.map((type) => (
                 <option key={type.idType} value={type.idType}>
-                  {`${type.idType} - ${type.Nom}`}
+                  {`${type.Nom}`}
                 </option>
               ))}
             </select>
