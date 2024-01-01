@@ -131,16 +131,28 @@ const CategorieUpdateButton = ({ productId, onTypeUpdated }) => {
   }
 };
 
-  
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-  
-    // Mise à jour de l'état avec la nouvelle valeur
-    setUpdatedProductData((prevData) => ({
-      ...prevData,
-      [name]: value,
-    }));
+    // Mettre à jour l'état seulement si l'entrée est valide
+    setUpdatedProductData({
+      ...updatedProductData,
+      [e.target.name]: e.target.value
+    });
   };
+
+  const handleKeyPress = (e) => {
+    // Récupérer le caractère entré
+    const char = e.key;
+  
+    // Autoriser les lettres, les accents, le signe "-" et "&"
+    const isValidChar = /^[a-zA-ZÀ-ÿ&-]$/.test(char);
+  
+    // Si le caractère n'est pas valide, annuler l'action par défaut
+    if (!isValidChar) {
+      e.preventDefault();
+    }
+  };
+  
+
   
 
   const handleFileChange = (e) => {
@@ -194,21 +206,22 @@ const CategorieUpdateButton = ({ productId, onTypeUpdated }) => {
       alignItems: "center",
     },
     content: {
-      width: "100%",  // ajustez la largeur comme vous le souhaitez
-      height: "100%",
+      width: "100%",  // Ajustez la largeur à votre besoin
+      height: "100%", // Ajustez la hauteur à votre besoin
       overflow: "auto",
       display: "flex",
-            flexDirection: "row", // Utilisez une disposition en ligne pour deux colonnes
-            alignItems: "flex-start", // Alignez les éléments en haut
-            justifyContent: "center",
-      top: "50%",
-      left: "50%",
-      transform: "translate(-50%, -50%)",
+      flexDirection: "column",  // Utilisez une disposition en colonne
+      alignItems: "center",  // Alignez les éléments au centre
+      
+      top: "0%",  // Ajustez la position en haut
+      left: "0%",  // Ajustez la position à gauche
+      right: "0%",  // Ajustez la position à droite
+      bottom: "0%",  // Ajustez la position en bas
     },
   }}
 >
   <div>
-    <div style={{ margin: "20px" }}>
+    <div style={{margin:"20px" }}>
       <a
         href="#"
         onClick={() => setIsModalOpen(false)}
@@ -223,17 +236,18 @@ const CategorieUpdateButton = ({ productId, onTypeUpdated }) => {
 
       <hr style={{ marginBottom: "20px", borderTop: "1px solid black" }} />
 
-      {/* Nom du type */}
+      {/* Nom de la catégorie */}
       <div style={{ marginBottom: "7px" }}>
         <label>Nom de la catégorie</label>
       </div>
       <div style={{ marginBottom: "20px" }}>
-        <input
+      <input
           value={updatedProductData.Nom || ""}
           type="text"
           name="Nom"
           style={{ width: "100%" }}
           onChange={handleInputChange}
+          onKeyPress={handleKeyPress}
         />
       </div>
 
@@ -241,7 +255,15 @@ const CategorieUpdateButton = ({ productId, onTypeUpdated }) => {
     </div>
 
     {/* Boutons Annuler et Mettre à jour cet article */}
-    <div className="flex mt-4 justify-center" style={{ width: "100%" }}>
+    <div
+        style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          marginTop:"220px",
+        }}
+      >
       <button
         onClick={() => {
           setIsModalOpen(false);
@@ -266,6 +288,5 @@ const CategorieUpdateButton = ({ productId, onTypeUpdated }) => {
 };
 
 export default CategorieUpdateButton;
-
 
 

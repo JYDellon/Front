@@ -14,6 +14,11 @@ const TypeUpdateButton = ({ productId, onTypeUpdated }) => {
   const token = useSelector((state) => state.auth.token);
   const [allTypes, setAllTypes] = useState([]);
   const [selectedProductType, setSelectedProductType] = useState('');
+  const [newTypeData, setNewTypeData] = useState({
+    parent_id: null, // Définissez la valeur par défaut selon vos besoins
+  });
+  const [parentTypes, setParentTypes] = useState([]);
+
 
 
   useEffect(() => {
@@ -29,7 +34,7 @@ const TypeUpdateButton = ({ productId, onTypeUpdated }) => {
           }
         );
         setAllTypes(typesResponse.data);
-    
+
         const productResponse = await axios.get(
           `https://localhost:8000/api/types/${productId}`,
           {
@@ -40,18 +45,16 @@ const TypeUpdateButton = ({ productId, onTypeUpdated }) => {
           }
         );
         setUpdatedProductData(productResponse.data);
-  
+
         // Définir la valeur actuelle du type de type dans l'état
-        
-        setSelectedProductType(currentProductType);
+        setSelectedProductType(productResponse.data.Nom);
       } catch (error) {
-        fetchTypes(); 
-        
+        fetchTypes();
       }
     };
-  
+
     fetchData();
-    fetchTypes(); 
+    fetchTypes();
   }, [productId, token]);
 
   const openModal = async () => {
@@ -66,70 +69,85 @@ const TypeUpdateButton = ({ productId, onTypeUpdated }) => {
           timeout: 10000,
         }
       );
-  
+
       // Utilisez les données obtenues pour mettre à jour l'état de la modal
       setUpdatedProductData(productResponse.data);
       setIsModalOpen(true);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
   
-  const fetchTypes = async () => {
-    try {
-      const typesResponse = await axios.get(
-        "https://localhost:8000/api/types",
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          timeout: 10000,
-        }
-      );
-      setAllTypes(typesResponse.data);
-    } catch (error) {
-    }
-  };
+  // ...
+
+const fetchTypes = async () => {
+  try {
+    const typesResponse = await axios.get(
+      "https://localhost:8000/api/types",
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        timeout: 10000,
+      }
+    );
+    setAllTypes(typesResponse.data);
+
+    // Filtrer les types avec parent_id null pour le menu déroulant
+    const filteredParentTypes = typesResponse.data.filter(
+      (type) => type.parent_id === null
+    );
+
+    // Triez les types par ordre alphabétique
+    const sortedParentTypes = filteredParentTypes.sort((a, b) => a.Nom.localeCompare(b.Nom));
+
+    setParentTypes(sortedParentTypes);
+  } catch (error) {
+    console.error("Erreur lors de la récupération des types :", error);
+  }
+};
+
+// ...
+
 
   const closeModal = () => {
     setIsModalOpen(false);
   };
 
   const updateType = async () => {
-  try {
-    // Construisez un objet avec les données mises à jour
-    const updatedTypeData = {
-      typeName: updatedProductData.Nom, // Assurez-vous que cela correspond au nom du champ dans le backend
-    };
-    
-
-    // Effectuez la requête PUT pour mettre à jour le type
-    const response = await axios.put(
-      `https://localhost:8000/api/types/${productId}`,
-      updatedTypeData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        timeout: 10000,
+    try {
+      // Construisez un objet avec les données mises à jour
+      const updatedTypeData = {
+        typeName: updatedProductData.Nom,
+        parent_id: newTypeData.parent_id !== null ? newTypeData.parent_id : updatedProductData.parent_id,
+      };
+      
+      // Effectuez la requête PUT pour mettre à jour le type
+      const response = await axios.put(
+        `https://localhost:8000/api/types/${productId}`,
+        updatedTypeData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+          timeout: 10000,
+        }
+      );
+  
+      // Si une fonction de rappel a été fournie, appelez-la avec les données mises à jour
+      if (onTypeUpdated) {
+        onTypeUpdated({ productId, updatedData: response.data });
       }
-    );
-
-    // Si une fonction de rappel a été fournie, appelez-la avec les données mises à jour
-    if (onTypeUpdated) {
-      onTypeUpdated({ productId, updatedData: response.data });
-    }
-
-    
-    // Fermez la modal après la mise à jour
+  
+      // Fermez la modal après la mise à jour
       closeModal();
-
+  
       // Mettez à jour la liste des types
       fetchTypes();
-  } catch (error) {
-    fetchTypes(); 
-  }
-};
+    } catch (error) {
+      fetchTypes(); 
+    }
+  };
+  
 
   
   const handleInputChange = (e) => {
@@ -194,20 +212,19 @@ const TypeUpdateButton = ({ productId, onTypeUpdated }) => {
       alignItems: "center",
     },
     content: {
-      width: "100%",  // ajustez la largeur comme vous le souhaitez
+      width: "100%",
       height: "100%",
       overflow: "auto",
       display: "flex",
-            flexDirection: "row", // Utilisez une disposition en ligne pour deux colonnes
-            alignItems: "flex-start", // Alignez les éléments en haut
-            justifyContent: "center",
+      flexDirection: "column",  // Utilisez une disposition en colonne
+      alignItems: "center",  // Alignez les éléments au centre
       top: "50%",
       left: "50%",
       transform: "translate(-50%, -50%)",
     },
   }}
 >
-  <div>
+<div style={{ flex: 1, marginRight: "20px", width: "33%", margin: "0 auto" }}>
     <div style={{ margin: "20px" }}>
       <a
         href="#"
@@ -217,31 +234,66 @@ const TypeUpdateButton = ({ productId, onTypeUpdated }) => {
         Retour sur Administration - Liste des types
       </a>
 
-      <p className="text-xl font-bold mb-4" style={{ marginTop: "45px", marginBottom: "27px" }}>
+      <p className="text-xl font-bold mb-4" style={{ marginTop: "100px" }}>
         Mise à jour du type
       </p>
 
-      <hr style={{ marginBottom: "20px", borderTop: "1px solid black" }} />
+      <hr style={{ marginBottom: "100px", borderTop: "2px solid #ccc" }} />
 
       {/* Nom du type */}
       <div style={{ marginBottom: "7px" }}>
         <label>Nom du type</label>
       </div>
       <div style={{ marginBottom: "20px" }}>
+        
         <input
           value={updatedProductData.Nom || ""}
           type="text"
           name="Nom"
           style={{ width: "100%" }}
           onChange={handleInputChange}
+          onKeyPress={(e) => {
+            const regex = /^[a-zA-ZÀ-ÿ&-]$/; // Autorise les lettres avec des accents et le signe -
+            const key = String.fromCharCode(!e.charCode ? e.which : e.charCode);
+            if (!regex.test(key)) {
+              e.preventDefault();
+              return false;
+            }
+          }}
         />
-      </div>
 
+      </div>
+{/* ------------------------------------------------------------------------------------------------ */}
+<div style={{ marginBottom: "7px" }}>
+    <label>Nom de la catégorie</label>
+</div>
+<div>
+    <select
+      name="parent_id"
+      style={{ width: "100%", marginBottom: "100px" }}
+      value={newTypeData.parent_id || updatedProductData.parent_id}
+      onChange={(e) => setNewTypeData({ ...newTypeData, parent_id: e.target.value })}
+    >
+      {parentTypes.map((parentType) => (
+        <option key={parentType.idType} value={parentType.idType}>
+          {parentType.Nom}
+        </option>
+      ))}
+    </select>
+  </div>
+{/* ------------------------------------------------------------------------------------------------ */}
       {/* Ajoutez d'autres champs au besoin */}
     </div>
 
     {/* Boutons Annuler et Mettre à jour cet article */}
-    <div className="flex mt-4 justify-center" style={{ width: "100%" }}>
+    <div
+        style={{
+          flex: 1,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
       <button
         onClick={() => {
           setIsModalOpen(false);

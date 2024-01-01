@@ -155,10 +155,6 @@ import Modal from "react-modal";
       // Réinitialise la modal ici, après la gestion du téléchargement
       resetModal();
     } catch (error) {
-    
-      console.error("Erreur lors de la création du nouveau produit :", error);
-  
-      setMessage(`Erreur lors de la création du nouveau produit : ${error.message || error.response?.data?.message}`);
       setIsAddModalOpen(false);
     }
   };
@@ -408,7 +404,7 @@ import Modal from "react-modal";
             margin: "-45px",
           },
           content: {
-            width: "96%",
+            width: "95.5%",
             height: "92%",
             maxWidth: "96%",
             maxHeight: "100%",
@@ -471,12 +467,22 @@ import Modal from "react-modal";
               <label>Prix</label>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <input
-                type="number"
-                name="price"
-                style={{ width: "100%" }}
-                onChange={handleInputChange}
-              />
+            <input
+              type="text"
+              name="price"
+              style={{ width: "100%" }}
+              value={newProductData.price}
+              onChange={(e) => {
+                // Remplacer tout caractère qui n'est pas un chiffre, un point ou une virgule par une chaîne vide
+                const sanitizedValue = e.target.value.replace(/[^0-9.,]/g, '');
+
+                // Mettre à jour l'état avec la nouvelle valeur
+                setNewProductData((prevData) => ({
+                  ...prevData,
+                  price: sanitizedValue,
+                }));
+              }}
+            />
             </div>
 
             {/* Contenance */}
@@ -497,49 +503,73 @@ import Modal from "react-modal";
               <label>Stock</label>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <input
-                type="number"
-                name="stock"
-                style={{ width: "100%" }}
-                onChange={handleInputChange}
-              />
+            <input
+              type="text"
+              name="stock"
+              style={{ width: "100%" }}
+              value={newProductData.stock}
+              onChange={(e) => {
+                // Remplacer tout caractère qui n'est pas un chiffre par une chaîne vide
+                const sanitizedValue = e.target.value.replace(/[^0-9]/g, '');
+
+                // Mettre à jour l'état avec la nouvelle valeur
+                setNewProductData((prevData) => ({
+                  ...prevData,
+                  stock: sanitizedValue,
+                }));
+              }}
+            />
             </div>
 
             {/* Catégorie */}
-            <div style={{ marginBottom: "7px" }}>
-              <label>Catégorie</label>
-            </div>
-            <div style={{ marginBottom: "20px" }}>
-              <select
-                name="product_type_id"
-                style={{ width: "50%" }}
-                onChange={(e) => {
-                  const selectedType = types.find((type) => type.idType === parseInt(e.target.value));
-                  setNewProductData((prevData) => ({
-                    ...prevData,
-                    product_type_id: selectedType ? selectedType.idType : "",
-                  }));
-                }}
-              >
-                {types.map((type) => (
-                  <option key={type.idType} value={type.idType}>
-                    {`${type.Nom}`}
-                  </option>
-                ))}
-              </select>
-            </div>
+            {/* Catégorie */}
+<div style={{ marginBottom: "7px" }}>
+  <label>Type</label>
+</div>
+<div style={{ marginBottom: "20px" }}>
+  <select
+    name="product_type_id"
+    style={{ width: "50%" }}
+    onChange={(e) => {
+      const selectedType = types.find((type) => type.idType === parseInt(e.target.value));
+      setNewProductData((prevData) => ({
+        ...prevData,
+        product_type_id: selectedType ? selectedType.idType : "",
+      }));
+    }}
+  >
+    {types
+      .sort((a, b) => a.Nom.localeCompare(b.Nom)) // Tri par ordre alphabétique
+      .map((type) => (
+        <option key={type.idType} value={type.idType}>
+          {`${type.Nom}`}
+        </option>
+      ))}
+  </select>
+</div>
+
 
             {/* Taxe */}
             <div style={{ marginBottom: "7px" }}>
               <label>Taxe</label>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <input
-                type="number"
-                name="Taxe"
-                style={{ width: "100%" }}
-                onChange={handleInputChange}
-              />
+            <input
+              type="text"
+              name="Taxe"
+              style={{ width: "100%" }}
+              value={newProductData.Taxe}
+              onChange={(e) => {
+                // Remplacer tout caractère qui n'est pas un chiffre, un point ou une virgule par une chaîne vide
+                const sanitizedValue = e.target.value.replace(/[^0-9.,]/g, '');
+
+                // Mettre à jour l'état avec la nouvelle valeur
+                setNewProductData((prevData) => ({
+                  ...prevData,
+                  Taxe: sanitizedValue,
+                }));
+              }}
+            />
             </div>
 
             {/* Description courte */}
@@ -612,7 +642,7 @@ import Modal from "react-modal";
             style={{ width: "auto", marginTop: "20px" }}
           />
         {/* Boutons Annuler et Créer cet article */}
-        <div className="flex mt-4 justify-center" style={{ width: "100%", marginTop: "150px" }}>
+        <div className="flex mt-4 justify-center" style={{ width: "100%", marginTop: "50px" }}>
           <button
             onClick={() => {
               resetModal();

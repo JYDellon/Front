@@ -11,6 +11,7 @@ const ProductsCategorie = () => {
   const token = useSelector(selectToken);
   const [message, setMessage] = useState(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [typeNameInput, setTypeNameInput] = useState('');
   const [newTypeData, setNewTypeData] = useState({
     typeName: "",
     parent_id: null,
@@ -152,14 +153,16 @@ const ProductsCategorie = () => {
       </h1>
 
       <div className="mb-4">
-        <button
-          onClick={() => {
-            setIsAddModalOpen(true);
-          }}
-          className="bg-green-500 text-white p-2 rounded hover:bg-green-600 mr-2"
-        >
-          Nouveau
-        </button>
+      <button
+  onClick={() => {
+    setIsAddModalOpen(true);
+    setTypeNameInput(''); // Réinitialiser le champ d'entrée à une chaîne vide
+  }}
+  className="bg-green-500 text-white p-2 rounded hover:bg-green-600 mr-2"
+>
+  Nouveau
+</button>
+
 
         <button
           onClick={handleDeleteButtonClick}
@@ -235,11 +238,34 @@ const ProductsCategorie = () => {
         isOpen={isAddModalOpen}
         onRequestClose={() => {
           setIsAddModalOpen(false);
+          resetFilePreview();
+          handleReloadTypes();
         }}
-        contentLabel="Modal d'ajout d'une nouvelle catégorie"
+        contentLabel="Modal d'ajout d'un nouveau type"
+        style={{
+          overlay: {
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          },
+          content: {
+            width: "100%",  // Ajustez la largeur à votre besoin
+            height: "100%", // Ajustez la hauteur à votre besoin
+            overflow: "auto",
+            display: "flex",
+            flexDirection: "column",  // Utilisez une disposition en colonne
+            alignItems: "center",  // Alignez les éléments au centre
+            justifyContent: "center",
+            top: "0%",  // Ajustez la position en haut
+            left: "0%",  // Ajustez la position à gauche
+            right: "0%",  // Ajustez la position à droite
+            bottom: "0%",  // Ajustez la position en bas
+          },
+        }}
       >
         
-        <div style={{ flex: 1, marginRight: "20px", width: "33%", margin: "0 auto" }}>
+        <div >
           <div style={{ margin: "20px" }}>
               <a
                 href="#"
@@ -248,23 +274,38 @@ const ProductsCategorie = () => {
               >
                 Retour sur Administration - Liste des catégories
               </a>
-              <p className="text-xl font-bold mb-4">Ajouter une nouvelle catégorie</p>
-              <hr style={{ marginBottom: "20px", borderTop: "2px solid #ccc" }} />
+
+              <p className="text-xl font-bold mb-4" style={{ marginTop: "45px", marginBottom: "27px" }}>Ajouter une nouvelle catégorie</p>
+              
+              <hr style={{ marginBottom: "20px", borderTop: "1px solid black" }} />
+              
               <div style={{ marginBottom: "7px" }}>
                 <label>Nom de la catégorie</label>
               </div>
               <div style={{ marginBottom: "20px" }}>
-                <input
-                  type="text"
-                  name="typeName"
-                  style={{ width: "100%" }}
-                  onChange={(e) =>
+              
+              <input
+                type="text"
+                name="typeName"
+                style={{ width: "100%" }}
+                value={typeNameInput}
+                onChange={(e) => {
+                  const inputValue = e.target.value;
+                  const isValidInput = /^[a-zA-ZÀ-ÿ&-\s]*$/.test(inputValue);
+
+                  if (isValidInput) {
+                    setTypeNameInput(inputValue);
                     setNewTypeData((prevData) => ({
                       ...prevData,
-                      [e.target.name]: e.target.value,
-                    }))
+                      [e.target.name]: inputValue,
+                    }));
                   }
-                />
+                }}
+                pattern="[a-zA-ZÀ-ÿ&-\s]*"
+              />
+
+
+
               </div>
           </div>
         </div>
@@ -277,7 +318,6 @@ const ProductsCategorie = () => {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
-          marginTop: "100px",
         }}
       >
               <button

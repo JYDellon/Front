@@ -16,42 +16,6 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
   const [selectedProductType, setSelectedProductType] = useState('');
 
 
-  // useEffect(() => {
-  //   const fetchData = async () => {
-  //     try {
-  //       const typesResponse = await axios.get(
-  //         "https://localhost:8000/api/types",
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //           timeout: 10000,
-  //         }
-  //       );
-  //       setAllTypes(typesResponse.data);
-    
-  //       const productResponse = await axios.get(
-  //         `https://localhost:8000/api/admin/products/${productId}`,
-  //         {
-  //           headers: {
-  //             Authorization: `Bearer ${token}`,
-  //           },
-  //           timeout: 10000,
-  //         }
-  //       );
-  //       setUpdatedProductData(productResponse.data);
-  
-  //       // Définir la valeur actuelle du type de produit dans l'état
-  //       // const currentProductType = `${productResponse.data.product_type_id} - ${productResponse.data.product_type_name}`;
-  //       setSelectedProductType(currentProductType);
-  //     } catch (error) {
-  //       console.error("Erreur lors de la récupération des données", error);
-  //     }
-  //   };
-  
-  //   fetchData();
-  // }, [productId, token]);
-
 
   useEffect(() => {
     const fetchData = async () => {
@@ -252,8 +216,8 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
             height: "100%",
             overflow: "auto",
             display: "flex",
-            flexDirection: "row", // Utilisez une disposition en ligne pour deux colonnes
-            alignItems: "flex-start", // Alignez les éléments en haut
+            flexDirection: "row", 
+            alignItems: "flex-start", 
             justifyContent: "center",
             top: "51%",
             left: "50%",
@@ -311,13 +275,20 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
               <label>Prix</label>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <input
-                value={updatedProductData.Prix || ""}
-                type="number"
-                name="Prix"
-                style={{ width: "100%" }}
-                onChange={handleInputChange}
-              />
+            <input
+              value={updatedProductData.Prix || ""}
+              type="text"
+              name="Prix"
+              pattern="[0-9]+(\.[0-9]{1,2})?"  // Accepter les nombres décimaux avec jusqu'à 2 chiffres après la virgule
+              style={{ width: "100%" }}
+              onChange={(e) => {
+                const sanitizedValue = e.target.value.replace(/[^0-9.]/g, '');  // Autoriser uniquement les chiffres et le point
+                setUpdatedProductData((prevData) => ({
+                  ...prevData,
+                  Prix: sanitizedValue,
+                }));
+              }}
+            />
             </div>
 
             {/* Contenance */}
@@ -339,58 +310,74 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
               <label>Stock</label>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <input
-                value={updatedProductData.Stock || ""}
-                type="number"
-                name="Stock"
-                style={{ width: "100%" }}
-                onChange={handleInputChange}
-              />
-            </div>
-
-            {/* Catégorie */}
-            <div style={{ marginBottom: "7px" }}>
-              <label>Catégorie</label>
-            </div>
-
-            <div style={{ marginBottom: "20px" }}>
-            <select
-              value={updatedProductData.product_type_id || ""}
-              name="product_type_id"
+            <input
+              value={updatedProductData.Stock || ""}
+              type="text"
+              name="Stock"
+              pattern="[0-9]+"  // Accepter uniquement les chiffres
               style={{ width: "100%" }}
               onChange={(e) => {
-                const selectedTypeId = parseInt(e.target.value);
-                const selectedTypeName = allTypes.find(type => type.idType === selectedTypeId)?.Nom || "";
+                const sanitizedValue = e.target.value.replace(/[^0-9]/g, '');  // Autoriser uniquement les chiffres
                 setUpdatedProductData((prevData) => ({
                   ...prevData,
-                  product_type_id: selectedTypeId || "",
-                  product_type_name: selectedTypeName,
+                  Stock: sanitizedValue,
                 }));
               }}
-            >
-              {allTypes.map((type) => (
-                <option key={type.idType} value={type.idType}>
-                  {`${type.Nom}`}
-                </option>
-              ))}
-            </select>
-
-
-
+            />
             </div>
+
+            {/* Type */}
+            {/* Type */}
+<div style={{ marginBottom: "7px" }}>
+  <label>Type</label>
+</div>
+
+<div style={{ marginBottom: "20px" }}>
+  <select
+    value={updatedProductData.product_type_id || ""}
+    name="product_type_id"
+    style={{ width: "100%" }}
+    onChange={(e) => {
+      const selectedTypeId = parseInt(e.target.value);
+      const selectedTypeName = allTypes.find(type => type.idType === selectedTypeId)?.Nom || "";
+      setUpdatedProductData((prevData) => ({
+        ...prevData,
+        product_type_id: selectedTypeId || "",
+        product_type_name: selectedTypeName,
+      }));
+    }}
+  >
+    {/* Triez les types par ordre alphabétique avant de les mapper */}
+    {allTypes
+      .sort((a, b) => a.Nom.localeCompare(b.Nom))
+      .map((type) => (
+        <option key={type.idType} value={type.idType}>
+          {`${type.Nom}`}
+        </option>
+      ))}
+  </select>
+</div>
+
 
             {/* Taxe */}
             <div style={{ marginBottom: "7px" }}>
               <label>Taxe</label>
             </div>
             <div style={{ marginBottom: "20px" }}>
-              <input
-                value={updatedProductData.Taxe || ""}
-                type="number"
-                name="Taxe"
-                style={{ width: "100%" }}
-                onChange={handleInputChange}
-              />
+            <input
+              value={updatedProductData.Taxe || ""}
+              type="text"
+              name="Taxe"
+              pattern="[0-9]+(\.[0-9]{1,2})?"  // Accepter les nombres décimaux avec jusqu'à 2 chiffres après la virgule
+              style={{ width: "100%" }}
+              onChange={(e) => {
+                const sanitizedValue = e.target.value.replace(/[^0-9.]/g, '');  // Autoriser uniquement les chiffres et le point
+                setUpdatedProductData((prevData) => ({
+                  ...prevData,
+                  Taxe: sanitizedValue,
+                }));
+              }}
+            />
             </div>
 
             {/* Description courte */}
@@ -476,7 +463,7 @@ const ProductUpdateButton = ({ productId, onProductUpdated }) => {
           {/* Boutons Annuler et Mettre à jour cet article */}
           <div
             className="flex mt-4 justify-center"
-            style={{ width: "100%", marginTop: "150px" }}
+            style={{ width: "100%", marginTop: "50px" }}
           >
             <button
               onClick={() => {

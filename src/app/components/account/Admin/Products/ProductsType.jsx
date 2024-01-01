@@ -8,6 +8,7 @@ import TypeUpdateButton from "./TypeUpdateButton";
 import Modal from "react-modal";
 
   const ProductsType = () => {
+    
   const [parentTypes, setParentTypes] = useState([]);
   const token = useSelector(selectToken);
   const [products, setProducts] = useState([]);
@@ -20,9 +21,9 @@ import Modal from "react-modal";
     typeName: "",
   });
   const [newTypeData, setNewTypeData] = useState({
-    typeName: "",
+    typeName: "", // Définissez la valeur initiale comme une chaîne vide
     parent_id: null,
-});
+  });
 
   const [selectedProducts, setSelectedProducts] = useState([]);
   const [selectedFile, setSelectedFile] = useState(null);
@@ -52,23 +53,8 @@ import Modal from "react-modal";
     fetchData();
   }, [token, isAddModalOpen]);
 
-
-  // const handleTypeDeleted = async ({ productId }) => {
-  //   try {
-  //     await axios.delete(`https://localhost:8000/api/types/${productId}`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`, 
-  //       },
-  //     });
   
-  //     // Mettez à jour l'état local pour refléter la suppression du type
-  //     setTypes((prevTypes) => prevTypes.filter((type) => type.idType !== productId));
-  //     setMessage(`Type ${productId} supprimé avec succès.`);
-  //   } catch (error) {
-  //   }finally {
-  //     handleReloadTypes(); // Recharger la liste des types
-  //   }
-  // };
+
   
   const handleTypeDeleted = async ({ productId }) => {
     try {
@@ -116,11 +102,14 @@ const handleTypeAdded = () => {
   refreshTypes(); // Recharger la liste des types
 };
 
-  const handleNewProduct = () => {
-    setIsAddModalOpen(true);
-    resetFilePreview(); // Réinitialise l'aperçu du fichier lorsque la modal est ouverte
-  };
-
+const handleNewProduct = () => {
+  setNewTypeData({
+    typeName: "",
+    parent_id: null
+  });
+  setIsAddModalOpen(true);
+  resetFilePreview();
+};
   
   
 
@@ -133,48 +122,6 @@ const handleTypeAdded = () => {
     }));
   };
 
-  // const handleAddType = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       "https://localhost:8000/api/types",
-  //       JSON.stringify(newTypeData),
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  
-  //     setTypes((prevTypes) => [...prevTypes, response.data]);
-  //     setMessage("Nouveau type créé avec succès.");
-  //   } catch (error) {
-  //   } finally {
-  //     setIsAddModalOpen(false); // Fermer la modal
-  //   }
-  // };
-
-
-  // const handleAddType = async () => {
-  //   try {
-  //     const response = await axios.post(
-  //       "https://localhost:8000/api/types",
-  //       JSON.stringify(newTypeData),
-  //       {
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           Authorization: `Bearer ${token}`,
-  //         },
-  //       }
-  //     );
-  
-  //     setTypes((prevTypes) => [...prevTypes, response.data]);
-  //     setMessage("Nouveau type créé avec succès.");
-  //   } catch (error) {
-  //   } finally {
-  //     setIsAddModalOpen(false); // Fermer la modal
-  //   }
-  // };
   
 
   const handleAddType = async () => {
@@ -391,112 +338,131 @@ const handleTypesReload = (reloadedTypes) => {
       </table>
 
       <Modal
-        isOpen={isAddModalOpen}
-        onRequestClose={() => {
-          setIsAddModalOpen(false);
-          resetFilePreview(); // Réinitialise l'aperçu du fichier lorsque la modal est fermée
-          handleReloadTypes(); // Recharge les types lors de la fermeture de la modal
-        }}
-        contentLabel="Modal d'ajout d'un nouveau type"
-        style={{
-          // ... (styles de la modal)
-        }}
-      >
-        {/* Colonne gauche */}
-        <div style={{ flex: 1, marginRight: "20px", width: "33%", margin: "0 auto" }}>
+  isOpen={isAddModalOpen}
+  onRequestClose={() => {
+    setIsAddModalOpen(false);
+    resetFilePreview();
+    handleReloadTypes();
+  }}
+  contentLabel="Modal d'ajout d'un nouveau type"
+  style={{
+    overlay: {
+      backgroundColor: "rgba(0, 0, 0, 0.5)",
+      display: "flex",
+      justifyContent: "center",
+      alignItems: "center",
+    },
+    content: {
+      width: "100%",  // Ajustez la largeur à votre besoin
+      height: "100%", // Ajustez la hauteur à votre besoin
+      overflow: "auto",
+      display: "flex",
+      flexDirection: "column",  // Utilisez une disposition en colonne
+      alignItems: "center",  // Alignez les éléments au centre
+      justifyContent: "center",
+      top: "0%",  // Ajustez la position en haut
+      left: "0%",  // Ajustez la position à gauche
+      right: "0%",  // Ajustez la position à droite
+      bottom: "0%",  // Ajustez la position en bas
+    },
+  }}
+>
+  {/* Contenu de la modal */}
+  <div style={{ flex: 1, marginRight: "20px", width: "33%", margin: "0 auto" }}>
           <div style={{ margin: "20px" }}>
-          
-            <a
-              href="#"
-              onClick={() => setIsAddModalOpen(false)}
-              className="text-blue-500 underline mb-4"
-            >
-              
-              Retour sur Administration - Liste des types
-            </a>
+    <a
+      href="#"
+      onClick={() => setIsAddModalOpen(false)}
+      className="text-blue-500 underline mb-4"
+    >
+      Retour sur Administration - Liste des types
+    </a>
 
-            <p className="text-xl font-bold mb-4" style={{ marginTop: "45px", marginBottom: "27px" }}>
-              Ajouter un nouveau type
-            </p>
+    <p className="text-xl font-bold mb-4" style={{ marginTop: "100px"}}>
+      Ajouter un nouveau type
+    </p>
 
-            <hr style={{ marginBottom: "20px", borderTop: "2px solid #ccc" }} />
+    <hr style={{ marginBottom: "100px", borderTop: "2px solid #ccc" }} />
+    <div style={{ marginBottom: "7px" }}>
+      <label>Nom du type</label>
+    </div>
+    <div style={{ marginBottom: "20px" }}>
+    
+    <input
+      type="text"
+      name="typeName"
+      style={{ width: "100%" }}
+      value={newTypeData.typeName || ""}
+      onChange={(e) => {
+        const inputValue = e.target.value;
+        const sanitizedValue = inputValue.replace(/[^a-zA-ZÀ-ÿ&\s-]/g, ''); // Autorise les lettres, les accents, les espaces et le signe "-"
+        setNewTypeData((prevData) => ({ ...prevData, typeName: sanitizedValue }));
+      }}
+    />
 
-            <div style={{ marginBottom: "7px" }}>
-  <label>Nom du type</label>
+
+
+
+
+
+    </div>
+
+    {/* Ajoutez le menu déroulant pour les types parent_id null */}
+<div style={{ marginBottom: "7px" }}>
+  <label>Nom de la catégorie</label>
 </div>
-<div style={{ marginBottom: "20px" }}>
-<input
-  type="text"
-  name="typeName" // Assurez-vous que le nom correspond au champ attendu par le backend
-  style={{ width: "100%" }}
-  onChange={handleInputChange}
-/>
+<div>
+  <select
+    name="parent_id"
+    style={{ width: "100%", marginBottom: "20px" }}
+    onChange={(e) => setNewTypeData((prevData) => ({ ...prevData, parent_id: e.target.value }))}
+  >
+    <option value={null}>Choisissez une catégorie</option>
+    {/* Triez les types parentTypes par ordre alphabétique avant de les mapper */}
+    {parentTypes
+      .sort((a, b) => a.Nom.localeCompare(b.Nom))
+      .map((parentType) => (
+        <option key={parentType.idType} value={parentType.idType}>
+          {parentType.Nom}
+        </option>
+      ))}
+  </select>
 </div>
 
+    </div>
+  
+    {/* Ajoutez d'autres champs au besoin */}
+  </div>
 
-
-
-
-{/* Ajoutez le menu déroulant pour les types parent_id null */}
-<div style={{ marginBottom: "20px" }}>
-          <label>Nom de la catégorie</label>
-          <select
-                    name="parent_id"
-                    style={{ width: "100%" }}
-                    onChange={(e) => setNewTypeData((prevData) => ({ ...prevData, parent_id: e.target.value }))}
-                >
-                    <option value={null}>Choisissez une catégorie</option>
-                    {parentTypes.map((parentType) => (
-                        <option key={parentType.idType} value={parentType.idType}>
-                            {parentType.Nom}
-                        </option>
-                    ))}
-                </select>
-
-        </div>
-           
-
-            {/* Ajoutez d'autres champs au besoin dans la colonne gauche */}
-          </div>
-        </div>
-
-
-      {/* Colonne droite */}
-      <div
+  {/* Boutons Annuler et Créer ce type */}
+  <div
         style={{
           flex: 1,
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          marginTop: "100px",
         }}
       >
-        
-
-        {/* Boutons Annuler et Créer ce type */}
-<div
-  className="flex mt-4 justify-center"
-  style={{ width: "100%", marginTop: "0px" }}
+    <button
+  onClick={() => {
+    handleNewProduct();
+    setIsAddModalOpen(false);
+    resetFilePreview();
+  }}
+  className="bg-gray-400 text-white p-2 rounded mr-2 hover:bg-gray-500"
 >
-<button
-              onClick={() => {
-                setIsAddModalOpen(false);
-                resetFilePreview();
-              }}
-              className="bg-gray-400 text-white p-2 rounded mr-2 hover:bg-gray-500"
-            >
-              Annuler
-            </button>
-            <button
-              onClick={() => handleAddType()}
-              className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
-            >
-              Créer ce type
-            </button>
-        </div>
-      </div>
-    </Modal>
+  Annuler
+</button>
+
+    <button
+      onClick={() => handleAddType()}
+      className="bg-green-500 text-white p-2 rounded hover:bg-green-600"
+    >
+      Créer ce type
+    </button>
+  </div>
+</Modal>
+
 
 
     </div>
